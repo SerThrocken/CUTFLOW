@@ -1,162 +1,205 @@
-# OpenCut (Legacy)
+# 🎬 CutFlow — AI-Powered Video Production Studio
 
-This is the original OpenCut codebase. It's archived and no longer maintained.
+> **"Stop editing. Start directing."**
+>
+> CutFlow is the world's first fully agentic AI video production studio. You don't just use tools — you hire a digital film crew. Our exclusive Director Agent manages a team of AI sub-agents to script your video, source royalty-free B-roll, perform emotion-aware jump cuts, and color grade your footage based on the vibe. Whether you're streaming edits from your phone to your desktop or letting the Auto-Highlights agent turn your 3-hour podcast into viral shorts, CutFlow gives you back your most valuable asset: **Time.**
 
-The rewrite is happening at [opencut-app/opencut](https://github.com/opencut-app/opencut).
+<p align="center">
+  <strong>Built by <a href="https://github.com/SerThrocken">SerThrocken</a> — The Looking Glass 3D (TLG3D LLC)</strong>
+</p>
 
-## Sponsors
+---
 
-Thanks to [Vercel](https://vercel.com?utm_source=github-opencut&utm_campaign=oss) and [fal.ai](https://fal.ai?utm_source=github-opencut&utm_campaign=oss) for their support of open-source software.
+## ✨ Feature Highlights
 
-<a href="https://vercel.com/oss">
-  <img alt="Vercel OSS Program" src="https://vercel.com/oss/program-badge.svg" />
-</a>
+### 🤖 Agentic AI Engine
+| Agent | What It Does | Tier |
+|---|---|---|
+| **Director Agent** | Orchestrates all sub-agents with HP/grading system and 3-min anti-loop check-ins | Pro |
+| **Auto B-Roll Fetcher** | Uses LLM to generate search queries from your script, fetches clips from Pexels API | Pro |
+| **Smart Jump-Cut** | Detects silence regions, uses AI to classify "dramatic pause" vs "dead air", auto-trims | Pro |
+| **Instruction-Guided Editor** | Type natural language ("make it cinematic and add subtitles") → auto-applies operations | Pro |
+| **Auto Highlights & Shorts** | Finds the most engaging segments, crops to 9:16, adds subtitles for TikTok/Reels | Pro |
+| **Vibe Color Grading** | Autonomously analyzes footage and selects the best color grade + audio EQ preset | Pro |
+| **Semantic Video Search** | Natural-language search across your project clips using LLM-powered indexing | Pro |
+| **Thumbnail Generator** | Extracts the best frame, enhances it, adds AI-generated clickable title text | Pro |
+| **Style Personas** | One-click preset bundles (MrBeast, Documentary, Vlog, Horror, Gaming, etc.) | Free |
+| **Script & Idea Generator** | AI brainstorms video concepts, titles, hooks, and full scripts | Free |
+| **Music Director AI** | Recommends mood, BPM, instruments, SFX placement, and ducking strategy | Free |
 
-<a href="https://fal.ai">
-  <img alt="Powered by fal.ai" src="https://img.shields.io/badge/Powered%20by-fal.ai-000000?style=flat&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJMMTMuMDkgOC4yNkwyMCAxMEwxMy4wOSAxNS43NEwxMiAyMkwxMC45MSAxNS43NEw0IDEwTDEwLjkxIDguMjZMMTIgMloiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPgo=" />
-</a>
+### 🎨 Visual Effects & Filters
+10 production-grade FFmpeg filter chains: VHS, Film Grain, Dreamy, Cyberpunk, Noir, Sepia, Teal & Orange, Vignette, Bloom, Sharpen.
 
-## Why?
+### 🎵 Audio Engine
+- Procedural SFX generator (whoosh, impact, riser, drop, glitch, notification, ambient, transition)
+- Mood-based music synthesis (epic, chill, hype, sad, corporate, lofi, action, horror)
+- AI noise reduction, voice isolation, audio ducking, beat-sync detection
 
-- **Privacy**: Your videos stay on your device
-- **Free features**: Most basic CapCut features are now paywalled 
-- **Simple**: People want editors that are easy to use - CapCut proved that
+### 🎬 Video Processing
+- Scene detection, motion smoothing (vidstab), Ken Burns zoom, speed ramping
+- Auto-reframe (16:9 → 9:16 / 1:1 / 4:5), shape dissolve transitions
+- Background removal (chromakey), object removal (delogo), generative extend
+- LUT application, color matching across clips, intro/outro animation generator (8 styles)
 
-## Project Structure
+### 📱 Teleprompter
+Auto-scrolling teleprompter with adjustable WPM tempo and voice-activated scroll mode.
 
-- `apps/web/`: Next.js web application
-- `apps/desktop/`: Native desktop app built with GPUI (in progress)
-- `rust/`: Platform-agnostic core: GPU compositor, effects, masks, and WASM bindings. We're actively migrating business logic here from TypeScript.
-- `docs/`: Architecture and subsystem documentation
+### 🔌 Universal LLM Router
+Supports 40+ providers out of the box:
+- **Local:** Ollama (phi3, llama3, gemma, mistral, etc.)
+- **Cloud:** OpenRouter, OpenAI, Anthropic, Google, Mistral, Groq, DeepSeek, Cerebras, Cohere, HuggingFace, Fireworks, and more
+- Automatic VRAM-aware model selection for local models
+- Resilient cascading fallback if a provider is down
 
-## Getting Started
+### 💬 Messaging Integration
+Accept editing commands from Discord, Telegram, Slack, WhatsApp, Signal, SMS, iMessage, Email, Instagram DM, Facebook Messenger, X/Twitter DM, LINE, Viber, and WeChat.
+
+---
+
+## 💰 Pricing
+
+| Tier | Price | What You Get |
+|---|---|---|
+| **Free** | $0 | Local LLMs, basic effects, script generator, personas, teleprompter |
+| **Pro** | $9.99/mo | Director Agent, Auto B-Roll, Smart Jump-Cut, Semantic Search, Universal API Router, Auto Highlights |
+| **Studio** | $199.99 lifetime | Everything in Pro, forever. Priority support. |
+
+> 7-day free Pro trial on first install. Hardware-locked to prevent abuse.
+
+---
+
+## 🖥️ System Requirements
+
+| | Minimum | Recommended |
+|---|---|---|
+| **RAM** | 16 GB DDR4 | 32–64 GB DDR5 |
+| **VRAM** | 8 GB | 12+ GB |
+| **GPU** | NVIDIA GTX 1070+ / AMD RX 580+ | NVIDIA RTX 3060+ / RTX 4070+ |
+| **OS** | Windows 10+ / macOS 12+ / Linux | Windows 11 / macOS 14+ |
+| **Disk** | 10 GB free | SSD with 50+ GB free |
+| **Tools** | FFmpeg installed and on PATH | FFmpeg + Ollama running |
+
+---
+
+## 🚀 Getting Started
 
 ### Prerequisites
+- [Rust toolchain](https://rustup.rs/) (for the native desktop app)
+- [Bun](https://bun.sh/) (for the web app)
+- [FFmpeg](https://ffmpeg.org/download.html) (required — must be on PATH)
+- [Ollama](https://ollama.ai/) (optional — for local AI models)
+- [Docker](https://docs.docker.com/get-docker/) (optional — for database/Redis)
 
-- [Bun](https://bun.sh/docs/installation)
-- [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/)
-
-> **Note:** Docker is optional but recommended for running the local database and Redis. If you only want to work on frontend features, you can skip it.
-
-### Setup
-
-1. Fork and clone the repository
-
-2. Copy the environment file:
-
-   ```bash
-   # Unix/Linux/Mac
-   cp apps/web/.env.example apps/web/.env.local
-
-   # Windows PowerShell
-   Copy-Item apps/web/.env.example apps/web/.env.local
-   ```
-
-3. Start the database and Redis:
-
-   ```bash
-   docker compose up -d db redis serverless-redis-http
-   ```
-
-4. Install dependencies and start the dev server:
-
-   ```bash
-   bun install
-   bun dev:web
-   ```
-
-The application will be available at [http://localhost:3000](http://localhost:3000).
-
-The `.env.example` has sensible defaults that match the Docker Compose config — it should work out of the box.
-
-### Desktop setup
-
-Desktop is opt-in. If you're only working on the web app, skip this entirely.
-
-If you want to get ready for `apps/desktop`, see [`apps/desktop/README.md`](apps/desktop/README.md). It's a two-step setup: Rust toolchain first, then desktop native dependencies.
-
-### Local WASM development
-
-Only needed if you're editing `rust/wasm` and want the web app to use your local build instead of the published package.
-
-**Prerequisites** — install these once before anything else:
+### Quick Start (Desktop)
 
 ```bash
-# Rust toolchain
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+# Clone the repo
+git clone https://github.com/SerThrocken/CUTFLOW.git
+cd CUTFLOW
 
-# build the WASM package
-cargo install wasm-pack
+# Build the native desktop app
+cd apps/desktop
+cargo build --release
 
-# reruns the build on file changes, used by bun dev:wasm
-cargo install cargo-watch
+# Run CutFlow
+./target/release/cutflow
 ```
 
-1. Build the package once from the repo root:
-
-   ```bash
-   bun run build:wasm
-   ```
-
-2. Register the generated package for linking:
-
-   ```bash
-   cd rust/wasm/pkg
-   bun link
-   ```
-
-3. Link `apps/web` to the local package:
-
-   ```bash
-   cd apps/web
-   bun link opencut-wasm
-   ```
-
-4. Rebuild on changes while you work:
-
-   ```bash
-   bun dev:wasm
-   ```
-
-To switch `apps/web` back to the published package, run:
+### Quick Start (Web)
 
 ```bash
-cd apps/web
-bun add opencut-wasm
+# Copy environment config
+cp apps/web/.env.example apps/web/.env.local
+
+# Start database (optional)
+docker compose up -d db redis serverless-redis-http
+
+# Install dependencies and start
+bun install
+bun dev:web
 ```
 
-### Self-Hosting with Docker
+The web app will be available at [http://localhost:3000](http://localhost:3000).
 
-To run everything (including a production build of the app) in Docker:
+---
 
-```bash
-docker compose up -d
+## 📁 Project Structure
+
+```
+CUTFLOW/
+├── apps/
+│   ├── desktop/          # Native GPUI desktop app (Rust)
+│   │   └── src/
+│   │       ├── main.rs           # App entry, UI rendering
+│   │       ├── agents.rs         # All AI agent implementations
+│   │       ├── ollama.rs         # Universal LLM router (40+ providers)
+│   │       ├── ffmpeg.rs         # FFmpeg integration & HW acceleration
+│   │       ├── security.rs       # Licensing, trial, dev backdoor
+│   │       ├── gpu.rs            # GPU detection & CUDA/NVENC
+│   │       ├── system_info.rs    # System diagnostics
+│   │       ├── process_manager.rs # Background service manager
+│   │       └── checkpoint.rs     # Project save/restore
+│   ├── web/              # Next.js web application
+│   └── android/          # Android mobile app (Kotlin)
+├── rust/                 # Shared platform-agnostic core (WASM)
+├── tlg3d-vibe-edit/      # Vibe Edit monorepo
+│   ├── packages/
+│   │   ├── core/         # Setup wizard, dashboard, themes
+│   │   ├── agents/       # TypeScript agent wrappers
+│   │   ├── llm-router/   # Enhanced LLM routing
+│   │   ├── marketplace/  # Skill marketplace
+│   │   ├── messaging/    # Multi-platform messaging hub
+│   │   └── video-engine/ # Python/FFmpeg video pipeline
+│   └── apps/
+│       ├── desktop-native/  # Vite + React desktop UI
+│       └── mobile/          # React Native mobile app
+├── docs/                 # Architecture documentation
+└── docker-compose.yml    # Database & service orchestration
 ```
 
-The app will be available at [http://localhost:3100](http://localhost:3100).
+---
 
-## Contributing
+## 🔐 Security
 
-We welcome contributions! While we're actively developing and refactoring certain areas, there are plenty of opportunities to contribute effectively.
+- **License Validation:** Server-side license key verification with hardware fingerprinting
+- **Device ID:** SHA-256 hash of OS + CPU + machine identity to prevent trial abuse
+- **Memory Obfuscation:** XOR encryption for sensitive credentials in the compiled binary
+- **7-Day Trial Lock:** Hardware-locked trial prevents multiple account creation
+- **Paywall Integrity:** Server-side Pro feature validation (no local config bypasses)
 
-**🎯 Focus areas:** Timeline functionality, project management, performance, bug fixes, and UI improvements outside the preview panel.
+---
 
-**⚠️ Avoid for now:** Preview panel enhancements (fonts, stickers, effects) and export functionality - we're refactoring these with a new binary rendering approach.
+## 📖 Documentation
 
-See our [Contributing Guide](.github/CONTRIBUTING.md) for detailed setup instructions, development guidelines, and complete focus area guidance.
+| Document | Description |
+|---|---|
+| [`docs/FREE_AI_MODELS_GUIDE.md`](docs/FREE_AI_MODELS_GUIDE.md) | **Start here!** Free API providers so you can use CutFlow without spending a dime |
+| [`docs/AGENT_ARCHITECTURE.md`](docs/AGENT_ARCHITECTURE.md) | Director Agent & sub-agent system deep dive |
+| [`docs/PATREON_PAYPAL_SETUP.md`](docs/PATREON_PAYPAL_SETUP.md) | Payment integration walkthrough (for developers) |
+| [`docs/QUICK_START.md`](tlg3d-vibe-edit/docs/QUICK_START.md) | 5-minute getting started guide |
+| [`docs/SETUP_WIZARD_GUIDE.md`](tlg3d-vibe-edit/docs/SETUP_WIZARD_GUIDE.md) | Interactive setup wizard walkthrough |
+| [`docs/LOCAL_MODELS_SETUP.md`](tlg3d-vibe-edit/docs/LOCAL_MODELS_SETUP.md) | How to install and configure Ollama for local AI |
+| [`docs/LOCAL_MODELS_FEATURES.md`](tlg3d-vibe-edit/docs/LOCAL_MODELS_FEATURES.md) | All local model-powered features explained |
+| [`docs/PROJECT_QUEUE_SYSTEM.md`](tlg3d-vibe-edit/docs/PROJECT_QUEUE_SYSTEM.md) | Batch rendering and project queue system |
+| [`docs/SETUP_AND_DEVELOPMENT.md`](tlg3d-vibe-edit/docs/SETUP_AND_DEVELOPMENT.md) | Development environment setup |
 
-**Quick start for contributors:**
+---
 
-- Fork the repo and clone locally
-- Follow the setup instructions in CONTRIBUTING.md
-- Working on `apps/desktop`? See [`apps/desktop/README.md`](apps/desktop/README.md) for setup
-- Create a feature branch and submit a PR
+## 🤝 Contributing
 
-## License
+We welcome contributions! See our [Contributing Guide](.github/CONTRIBUTING.md) for details.
+
+**Focus areas:** Timeline features, agent improvements, performance, mobile UX, new visual effects.
+
+---
+
+## 📄 License
 
 [MIT LICENSE](LICENSE)
 
 ---
 
-![Star History Chart](https://api.star-history.com/svg?repos=opencut-app/opencut&type=Date)
-
+<p align="center">
+  <strong>CutFlow</strong> — by SerThrocken (The Looking Glass 3D)<br/>
+  <em>"Stop editing. Start directing."</em>
+</p>
