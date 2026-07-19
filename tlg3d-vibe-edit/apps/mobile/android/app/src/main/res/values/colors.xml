@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- CutFlow brand colors -->
+    <color name="cutflow_primary">#4FD97D</color>
+    <color name="cutflow_accent">#D4A574</color>
+    <color name="cutflow_background">#0F0F0F</color>
+    <color name="cutflow_surface">#1A1A1A</color>
+    <color name="cutflow_green">#4FD97D</color>
+    <!-- Notification channel color -->
+    <color name="notification_color">#4FD97D</color>
+    <!-- Status bar -->
+    <color name="status_bar">#0F0F0F</color>
+</resources>

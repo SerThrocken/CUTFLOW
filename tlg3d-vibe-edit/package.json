@@ -1,0 +1,33 @@
+{
+  "name": "cutflow",
+  "version": "0.1.0",
+  "description": "The Looking Glass 3D - Agentic AI Video Editing & Scripting Software",
+  "main": "packages/api/index.js",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "lerna run dev --parallel",
+    "build": "lerna run build",
+    "test": "lerna run test",
+    "lint": "eslint packages/*/src",
+    "docker:build": "docker build -t cutflow:latest .",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down"
+  },
+  "workspaces": [
+    "packages/core",
+    "packages/api",
+    "packages/video-engine",
+    "packages/messaging",
+    "packages/llm-router",
+    "packages/agents"
+  ],
+  "devDependencies": {
+    "lerna": "^7.0.0",
+    "eslint": "^8.50.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0"
+  }
+}

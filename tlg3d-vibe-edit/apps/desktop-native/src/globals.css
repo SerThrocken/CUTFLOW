@@ -1,0 +1,51 @@
+/* ============================================================
+   CutFlow Desktop — Global CSS
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+* {
+  box-sizing:  border-box;
+  margin:      0;
+  padding:     0;
+}
+
+:root {
+  --color-bg:      #0F0F0F;
+  --color-surface: #1A1A1A;
+  --color-card:    #222222;
+  --color-border:  #2A2A2A;
+  --color-primary: #4FD97D;
+  --color-accent:  #D4A574;
+  --color-text:    #E0E0E0;
+  --color-muted:   #888888;
+  --color-error:   #EF4444;
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+}
+
+html, body, #root {
+  height:           100%;
+  background-color: var(--color-bg);
+  color:            var(--color-text);
+  font-family:      'Inter', system-ui, -apple-system, sans-serif;
+  font-size:        14px;
+  line-height:      1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--color-surface); }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #444; }
+
+/* Selection */
+::selection { background: var(--color-primary); color: #0F0F0F; }
+
+/* Focus */
+:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+/* Drag region for Tauri window */
+[data-tauri-drag-region] { -webkit-app-region: drag; }
+[data-tauri-drag-region] * { -webkit-app-region: no-drag; }

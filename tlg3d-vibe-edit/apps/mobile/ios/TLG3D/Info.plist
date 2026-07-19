@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Info.plist — CutFlow
+  Required by Xcode to build a valid .ipa package.
+  All keys here are read by iOS at install/runtime.
+-->
+<plist version="1.0">
+<dict>
+  <!-- ── Identity ──────────────────────────────────────── -->
+  <key>CFBundleIdentifier</key>
+  <string>dev.tlg3d.cutflow</string>
+  <key>CFBundleName</key>
+  <string>TLG3D</string>
+  <key>CFBundleDisplayName</key>
+  <string>CutFlow</string>
+  <key>CFBundleVersion</key>
+  <string>1</string>
+  <key>CFBundleShortVersionString</key>
+  <string>0.1.0</string>
+  <key>CFBundlePackageType</key>
+  <string>APPL</string>
+  <key>CFBundleExecutable</key>
+  <string>TLG3D</string>
+  <key>CFBundleDevelopmentRegion</key>
+  <string>en</string>
+  <key>CFBundleInfoDictionaryVersion</key>
+  <string>6.0</string>
+
+  <!-- ── Minimum OS ────────────────────────────────────── -->
+  <key>MinimumOSVersion</key>
+  <string>15.1</string>
+
+  <!-- ── Privacy Descriptions (required for App Store) ── -->
+  <key>NSCameraUsageDescription</key>
+  <string>CutFlow needs camera access to record and capture video for editing projects.</string>
+  <key>NSMicrophoneUsageDescription</key>
+  <string>CutFlow needs microphone access to record audio for voiceovers and video editing.</string>
+  <key>NSPhotoLibraryUsageDescription</key>
+  <string>CutFlow needs access to your photo library to import videos and images into editing projects.</string>
+  <key>NSPhotoLibraryAddUsageDescription</key>
+  <string>CutFlow needs to save completed video edits to your photo library.</string>
+  <key>NSLocalNetworkUsageDescription</key>
+  <string>CutFlow connects to your desktop computer over the local network for remote video editing and file transfer.</string>
+  <key>NSFaceIDUsageDescription</key>
+  <string>CutFlow uses Face ID to protect your account and projects.</string>
+  <key>NSMotionUsageDescription</key>
+  <string>CutFlow uses motion data for video stabilization features.</string>
+
+  <!-- ── Bonjour (local network discovery for desktop pairing) -->
+  <key>NSBonjourServices</key>
+  <array>
+    <string>_cutflow._tcp</string>
+    <string>_cutflow._udp</string>
+  </array>
+
+  <!-- ── Background Modes ──────────────────────────────── -->
+  <key>UIBackgroundModes</key>
+  <array>
+    <string>audio</string>
+    <string>fetch</string>
+    <string>remote-notification</string>
+    <string>processing</string>
+  </array>
+
+  <!-- ── URL Schemes (deep links + social share callbacks) -->
+  <key>CFBundleURLTypes</key>
+  <array>
+    <dict>
+      <key>CFBundleURLSchemes</key>
+      <array>
+        <string>tlg3d</string>
+        <string>tlg3dvibeedit</string>
+      </array>
+      <key>CFBundleURLName</key>
+      <string>dev.tlg3d.cutflow</string>
+    </dict>
+  </array>
+
+  <!-- ── Queried URL Schemes (social apps) ────────────── -->
+  <key>LSApplicationQueriesSchemes</key>
+  <array>
+    <string>tiktok</string>
+    <string>instagram</string>
+    <string>youtube</string>
+    <string>twitter</string>
+    <string>fb</string>
+    <string>snapchat</string>
+    <string>discord</string>
+    <string>tg</string>
+    <string>slack</string>
+  </array>
+
+  <!-- ── App Transport Security ────────────────────────── -->
+  <key>NSAppTransportSecurity</key>
+  <dict>
+    <!-- Allow local network for desktop pairing -->
+    <key>NSAllowsLocalNetworking</key>
+    <true/>
+    <key>NSExceptionDomains</key>
+    <dict>
+      <key>localhost</key>
+      <dict>
+        <key>NSExceptionAllowsInsecureHTTPLoads</key>
+        <true/>
+      </dict>
+    </dict>
+  </dict>
+
+  <!-- ── Supported Orientations ────────────────────────── -->
+  <key>UISupportedInterfaceOrientations</key>
+  <array>
+    <string>UIInterfaceOrientationPortrait</string>
+    <string>UIInterfaceOrientationLandscapeLeft</string>
+    <string>UIInterfaceOrientationLandscapeRight</string>
+  </array>
+  <key>UISupportedInterfaceOrientations~ipad</key>
+  <array>
+    <string>UIInterfaceOrientationPortrait</string>
+    <string>UIInterfaceOrientationPortraitUpsideDown</string>
+    <string>UIInterfaceOrientationLandscapeLeft</string>
+    <string>UIInterfaceOrientationLandscapeRight</string>
+  </array>
+
+  <!-- ── Launch Screen ─────────────────────────────────── -->
+  <key>UILaunchStoryboardName</key>
+  <string>SplashScreen</string>
+  <key>UIStatusBarStyle</key>
+  <string>UIStatusBarStyleLightContent</string>
+  <key>UIViewControllerBasedStatusBarAppearance</key>
+  <false/>
+
+  <!-- ── Requires Full Screen (needed for video editor) ── -->
+  <key>UIRequiresFullScreen</key>
+  <true/>
+</dict>
+</plist>

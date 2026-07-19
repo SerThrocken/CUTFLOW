@@ -7,9 +7,21 @@ import { TooltipProvider } from "../components/ui/tooltip";
 import { baseMetaData } from "./metadata";
 import { BotIdClient } from "botid/client";
 import { webEnv } from "@/env/web";
-import { Inter } from "next/font/google";
+import { Outfit, DM_Sans } from "next/font/google";
 
-const siteFont = Inter({ subsets: ["latin"] });
+const outfit = Outfit({
+	subsets: ["latin"],
+	variable: "--font-outfit",
+	display: "swap",
+});
+
+const dmSans = DM_Sans({
+	subsets: ["latin"],
+	variable: "--font-dm-sans",
+	display: "swap",
+});
+
+const siteFont = `${outfit.variable} ${dmSans.variable}`;
 
 export const metadata = baseMetaData;
 
@@ -39,7 +51,7 @@ export default function RootLayout({
 					</>
 				)}
 			</head>
-			<body className={`${siteFont.className} font-sans antialiased`}>
+			<body className={`${siteFont} font-sans antialiased`}>
 				<ThemeProvider
 					attribute="class"
 					defaultTheme="system"

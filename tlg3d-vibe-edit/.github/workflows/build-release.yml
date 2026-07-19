@@ -1,0 +1,387 @@
+
+# ============================================================
+#  CutFlow — CI/CD Pipeline
+#  Builds native packages for all platforms on every release:
+#    • Windows:  .msi installer (via Tauri + WiX)
+#    • macOS:    .dmg (via Tauri)
+#    • Linux:    .AppImage + .deb (via Tauri)
+#    • Android:  .apk + .aab (via Gradle)
+#    • iOS:      .ipa (via Xcode — macOS runner only)
+#
+#  Triggers: push to main, or version tag (v*)
+# ============================================================
+
+name: Build & Release CutFlow
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      platforms:
+        description: 'Platforms to build (all | desktop | mobile)'
+        required: false
+        default: 'all'
+
+env:
+  CARGO_TERM_COLOR: always
+  NODE_VERSION:     '20'
+  JAVA_VERSION:     '17'
+
+# ── Desktop: Tauri (Windows, macOS, Linux) ───────────────────
+
+jobs:
+
+  build-desktop:
+    name: Desktop — ${{ matrix.platform }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: windows
+            os:       windows-latest
+            targets:  'msi,nsis'
+            artifact: 'CutFlow_*.msi'
+
+          - platform: macos
+            os:       macos-latest
+            targets:  'dmg,app'
+            artifact: 'CutFlow_*.dmg'
+
+          - platform: linux
+            os:       ubuntu-22.04
+            targets:  'appimage,deb'
+            artifact: 'cut-flow_*.AppImage'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Setup Rust (stable)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: >
+            ${{ matrix.platform == 'macos' &&
+              'x86_64-apple-darwin,aarch64-apple-darwin' || '' }}
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './apps/desktop-native/src-tauri -> target'
+
+      # Linux system dependencies for Tauri
+      - name: Install Linux dependencies
+        if: matrix.platform == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libappindicator3-dev \
+            librsvg2-dev \
+            patchelf \
+            ffmpeg \
+            libgtk-3-dev \
+            libayatana-appindicator3-dev
+
+      - name: Install Node dependencies (root)
+        run: npm ci
+
+      - name: Install desktop frontend dependencies
+        working-directory: apps/desktop-native
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: apps/desktop-native
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+      # macOS code signing
+      - name: Import macOS signing cert
+        if: matrix.platform == 'macos' && env.APPLE_CERTIFICATE != ''
+        uses: apple-actions/import-codesign-certs@v2
+        with:
+          p12-file-base64: ${{ secrets.APPLE_CERTIFICATE }}
+          p12-password:    ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+
+      - name: Build Tauri app
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN:              ${{ secrets.GITHUB_TOKEN }}
+          TAURI_PRIVATE_KEY:         ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_KEY_PASSWORD:        ${{ secrets.TAURI_KEY_PASSWORD }}
+          APPLE_ID:                  ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD:            ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID:             ${{ secrets.APPLE_TEAM_ID }}
+        with:
+          projectPath:    apps/desktop-native
+          tagName:        ${{ github.ref_name }}
+          releaseName:    'CutFlow ${{ github.ref_name }}'
+          releaseBody:    'CutFlow — AI Video Editing by The Looking Glass 3D'
+          releaseDraft:   true
+          prerelease:     false
+          args:           --target ${{ matrix.targets }}
+
+      - name: Upload desktop artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name:           cutflow-${{ matrix.platform }}-${{ github.ref_name }}
+          path:           apps/desktop-native/src-tauri/target/release/bundle/**/*
+          retention-days: 30
+
+# ── Android APK / AAB ────────────────────────────────────────
+
+  build-android:
+    name: Android APK + AAB
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Node dependencies
+        working-directory: apps/mobile
+        run: npm ci
+
+      - name: Bundle React Native JS
+        working-directory: apps/mobile
+        run: |
+          mkdir -p android/app/src/main/assets
+          npx react-native bundle \
+            --platform android \
+            --dev false \
+            --entry-file index.js \
+            --bundle-output android/app/src/main/assets/index.android.bundle \
+            --assets-dest android/app/src/main/res
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ hashFiles('apps/mobile/android/**/*.gradle*') }}
+
+      # Create keystore from secrets
+      - name: Create keystore
+        if: env.KEYSTORE_BASE64 != ''
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > apps/mobile/android/app/cutflow.keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+
+      - name: Build debug APK
+        working-directory: apps/mobile/android
+        run: ./gradlew assembleDebug
+
+      - name: Build release APK
+        if: env.KEYSTORE_BASE64 != ''
+        working-directory: apps/mobile/android
+        run: ./gradlew assembleRelease
+        env:
+          KEYSTORE_BASE64:    ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD:  ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS:          ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD:       ${{ secrets.KEY_PASSWORD }}
+          KEYSTORE_FILE:      cutflow.keystore
+
+      - name: Build release AAB (Play Store)
+        if: env.KEYSTORE_BASE64 != ''
+        working-directory: apps/mobile/android
+        run: ./gradlew bundleRelease
+        env:
+          KEYSTORE_BASE64:    ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD:  ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS:          ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD:       ${{ secrets.KEY_PASSWORD }}
+          KEYSTORE_FILE:      cutflow.keystore
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name:           cutflow-android-${{ github.ref_name }}
+          path: |
+            apps/mobile/android/app/build/outputs/apk/**/*.apk
+            apps/mobile/android/app/build/outputs/bundle/**/*.aab
+          retention-days: 30
+
+# ── iOS IPA ──────────────────────────────────────────────────
+
+  build-ios:
+    name: iOS IPA
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Select Xcode version
+        run: sudo xcode-select -s /Applications/Xcode_15.2.app
+
+      - name: Install Node dependencies
+        working-directory: apps/mobile
+        run: npm ci
+
+      - name: Install CocoaPods dependencies
+        working-directory: apps/mobile/ios
+        run: |
+          gem install cocoapods --no-document
+          pod install --repo-update
+
+      - name: Bundle React Native JS for iOS
+        working-directory: apps/mobile
+        run: |
+          npx react-native bundle \
+            --platform ios \
+            --dev false \
+            --entry-file index.js \
+            --bundle-output ios/main.jsbundle \
+            --assets-dest ios
+
+      # iOS signing — install cert & provisioning profile from secrets
+      - name: Import iOS certificates
+        if: env.IOS_CERTIFICATE != ''
+        uses: apple-actions/import-codesign-certs@v2
+        with:
+          p12-file-base64: ${{ secrets.IOS_CERTIFICATE }}
+          p12-password:    ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+        env:
+          IOS_CERTIFICATE: ${{ secrets.IOS_CERTIFICATE }}
+
+      - name: Install provisioning profile
+        if: env.IOS_PROVISION_PROFILE != ''
+        run: |
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          echo "${{ secrets.IOS_PROVISION_PROFILE }}" | base64 -d \
+            > ~/Library/MobileDevice/Provisioning\ Profiles/cutflow.mobileprovision
+        env:
+          IOS_PROVISION_PROFILE: ${{ secrets.IOS_PROVISION_PROFILE }}
+
+      - name: Build iOS (no signing — simulator)
+        if: env.IOS_CERTIFICATE == ''
+        working-directory: apps/mobile/ios
+        run: |
+          xcodebuild \
+            -workspace TLG3D.xcworkspace \
+            -scheme TLG3D \
+            -configuration Release \
+            -sdk iphonesimulator \
+            -derivedDataPath build \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+        env:
+          IOS_CERTIFICATE: ${{ secrets.IOS_CERTIFICATE }}
+
+      - name: Build iOS Archive (signed)
+        if: env.IOS_CERTIFICATE != ''
+        working-directory: apps/mobile/ios
+        run: |
+          xcodebuild \
+            -workspace TLG3D.xcworkspace \
+            -scheme TLG3D \
+            -configuration Release \
+            -archivePath build/CutFlow.xcarchive \
+            archive \
+            CODE_SIGN_IDENTITY="${{ secrets.IOS_CODE_SIGN_IDENTITY }}" \
+            PROVISIONING_PROFILE_SPECIFIER="${{ secrets.IOS_PROVISIONING_PROFILE_NAME }}"
+        env:
+          IOS_CERTIFICATE: ${{ secrets.IOS_CERTIFICATE }}
+
+      - name: Export IPA
+        if: env.IOS_CERTIFICATE != ''
+        working-directory: apps/mobile/ios
+        run: |
+          xcodebuild \
+            -exportArchive \
+            -archivePath build/CutFlow.xcarchive \
+            -exportOptionsPlist ExportOptions.plist \
+            -exportPath build/ipa
+        env:
+          IOS_CERTIFICATE: ${{ secrets.IOS_CERTIFICATE }}
+
+      - name: Upload iOS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name:           cutflow-ios-${{ github.ref_name }}
+          path: |
+            apps/mobile/ios/build/**/*.ipa
+            apps/mobile/ios/build/**/*.app
+          retention-days: 30
+
+# ── Create GitHub Release ────────────────────────────────────
+
+  create-release:
+    name: Create GitHub Release
+    needs: [build-desktop, build-android, build-ios]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-artifacts
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name:       'CutFlow ${{ github.ref_name }}'
+          body: |
+            ## CutFlow ${{ github.ref_name }}
+
+            AI-powered video editing by **The Looking Glass 3D**
+
+            ### Downloads
+            | Platform | File | Notes |
+            |----------|------|-------|
+            | Windows  | `CutFlow_*.msi` | Windows 10/11 installer |
+            | macOS    | `CutFlow_*.dmg` | macOS 12+ |
+            | Linux    | `cut-flow_*.AppImage` | Any distro |
+            | Android  | `app-release.apk` | Android 7.0+ |
+            | iOS      | `CutFlow.ipa` | iOS 15.1+ (requires signing) |
+
+            ### Requirements
+            - GPU: RTX 3060+ (12GB VRAM) for local AI models
+            - CPU: i7 8th gen or newer
+            - RAM: 16GB+
+
+            ### Links
+            - GitHub: https://github.com/serthrocken/cutflow
+            - Issues: https://github.com/serthrocken/cutflow/issues
+
+          draft:      false
+          prerelease: ${{ contains(github.ref_name, 'alpha') || contains(github.ref_name, 'beta') }}
+          files:      release-artifacts/**/*
+          token:      ${{ secrets.GITHUB_TOKEN }}

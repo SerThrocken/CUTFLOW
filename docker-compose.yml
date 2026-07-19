@@ -1,4 +1,28 @@
 services:
+  tailscale:
+    image: tailscale/tailscale:latest
+    container_name: opencut-tailscale
+    hostname: ${TS_HOSTNAME:-opencut}
+    restart: unless-stopped
+    environment:
+      - TS_AUTHKEY=${TS_AUTHKEY}
+      - TS_HOSTNAME=${TS_HOSTNAME:-opencut}
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_USERSPACE=false
+      - TS_ACCEPT_DNS=true
+    volumes:
+      - tailscale_state:/var/lib/tailscale
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    healthcheck:
+      test: ["CMD-SHELL", "tailscale status --json | grep -q '\"BackendState\":\"Running\"' || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
   db:
     image: postgres:17
     restart: unless-stopped
@@ -57,20 +81,25 @@ services:
         - NEXT_PUBLIC_MARBLE_API_URL=${NEXT_PUBLIC_MARBLE_API_URL:-https://api.marblecms.com}
         - MARBLE_WORKSPACE_KEY=${MARBLE_WORKSPACE_KEY:-build-placeholder}
     restart: unless-stopped
-    ports:
-      - "3100:3000"
+    # Shares the Tailscale container's network so the app is reachable
+    # at https://<TS_HOSTNAME>.ts.net on your Tailnet (port 3000).
+    # Remove network_mode and restore the ports block below if you want
+    # plain localhost access instead.
+    network_mode: service:tailscale
     environment:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://opencut:opencut@db:5432/opencut
       - BETTER_AUTH_SECRET=your-production-secret-key-here
       - UPSTASH_REDIS_REST_URL=http://serverless-redis-http:80
       - UPSTASH_REDIS_REST_TOKEN=example_token
-      - NEXT_PUBLIC_SITE_URL=http://localhost:3100
+      - NEXT_PUBLIC_SITE_URL=https://${TS_HOSTNAME:-opencut}.ts.net
       - NEXT_PUBLIC_MARBLE_API_URL=https://api.marblecms.com
       - MARBLE_WORKSPACE_KEY=${MARBLE_WORKSPACE_KEY:-placeholder}
       - FREESOUND_CLIENT_ID=${FREESOUND_CLIENT_ID}
       - FREESOUND_API_KEY=${FREESOUND_API_KEY}
     depends_on:
+      tailscale:
+        condition: service_healthy
       db:
         condition: service_healthy
       serverless-redis-http:
@@ -84,6 +113,7 @@ services:
 
 volumes:
   postgres_data:
+  tailscale_state:
 
 networks:
   default:

@@ -1,0 +1,147 @@
+version: '3.9'
+
+services:
+
+  # ── Database ──────────────────────────────────────────────────
+  mongodb:
+    image: mongo:7.0
+    container_name: cutflow-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: cutflow_secure_password
+      MONGO_INITDB_DATABASE: cutflow
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - cutflow-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/cutflow --quiet
+      interval: 10s
+      retries:  5
+
+  # ── Main API ──────────────────────────────────────────────────
+  api:
+    build:
+      context:    .
+      dockerfile: Dockerfile.api
+    container_name: cutflow-api
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://admin:cutflow_secure_password@mongodb:27017/cutflow?authSource=admin
+      - PORT=3000
+      - APP_NAME=CutFlow
+      - VIDEO_ENGINE_URL=http://video-engine:5000
+      - MESSAGING_SERVICE_URL=http://messaging:3003
+      - DATA_DIR=/app/data/users
+      - SKILLS_DIR=/app/data/skills
+    env_file: .env
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    volumes:
+      - ./data:/app/data
+      - ./tmp:/app/tmp
+    networks:
+      - cutflow-network
+    healthcheck:
+      test: wget -qO- http://localhost:3000/health || exit 1
+      interval: 30s
+      retries:  3
+
+  # ── Video Engine ──────────────────────────────────────────────
+  video-engine:
+    build:
+      context:    .
+      dockerfile: Dockerfile.video
+    container_name: cutflow-video-engine
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - MONGODB_URI=mongodb://admin:cutflow_secure_password@mongodb:27017/cutflow?authSource=admin
+      - DATA_DIR=/app/data/users
+      - TEMP_DIR=/app/tmp
+      - APP_NAME=CutFlow
+    env_file: .env
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    volumes:
+      - ./data:/app/data
+      - ./tmp:/app/tmp
+    networks:
+      - cutflow-network
+    healthcheck:
+      test: wget -qO- http://localhost:5000/health || exit 1
+      interval: 30s
+      retries:  3
+
+  # ── Marketplace ───────────────────────────────────────────────
+  marketplace:
+    build:
+      context:    .
+      dockerfile: Dockerfile.marketplace
+    container_name: cutflow-marketplace
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://admin:cutflow_secure_password@mongodb:27017/cutflow?authSource=admin
+      - PORT=3001
+      - SKILLS_DIR=/app/data/skills
+      - APP_NAME=CutFlow
+    env_file: .env
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    volumes:
+      - ./data:/app/data
+    networks:
+      - cutflow-network
+    healthcheck:
+      test: wget -qO- http://localhost:3001/health || exit 1
+      interval: 30s
+      retries:  3
+
+  # ── Messaging Service ─────────────────────────────────────────
+  messaging:
+    build:
+      context:    .
+      dockerfile: Dockerfile.messaging
+    container_name: cutflow-messaging
+    restart: unless-stopped
+    ports:
+      - "3003:3003"
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://admin:cutflow_secure_password@mongodb:27017/cutflow?authSource=admin
+      - API_URL=http://api:3000
+      - MESSAGING_PORT=3003
+      - DATA_DIR=/app/data/users
+      - APP_NAME=CutFlow
+    env_file: .env
+    depends_on:
+      - mongodb
+      - api
+    volumes:
+      - ./data:/app/data
+    networks:
+      - cutflow-network
+
+# ── Volumes & Networks ────────────────────────────────────────
+
+volumes:
+  mongodb_data:
+    driver: local
+
+networks:
+  cutflow-network:
+    driver: bridge

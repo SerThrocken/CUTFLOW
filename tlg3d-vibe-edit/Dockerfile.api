@@ -1,0 +1,27 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+RUN apk add --no-cache python3 make g++ ffmpeg
+
+COPY package.json package-lock.json ./
+COPY packages/api/package.json          ./packages/api/
+COPY packages/core/package.json         ./packages/core/
+COPY packages/llm-router/package.json   ./packages/llm-router/
+COPY packages/marketplace/package.json  ./packages/marketplace/
+COPY packages/agents/package.json       ./packages/agents/
+
+RUN npm ci --only=production
+
+COPY packages/api       ./packages/api
+COPY packages/core      ./packages/core
+COPY packages/llm-router  ./packages/llm-router
+COPY packages/marketplace ./packages/marketplace
+COPY packages/agents    ./packages/agents
+
+EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+  CMD wget -qO- http://localhost:3000/health || exit 1
+
+CMD ["node", "-r", "ts-node/register", "packages/api/src/index.ts"]

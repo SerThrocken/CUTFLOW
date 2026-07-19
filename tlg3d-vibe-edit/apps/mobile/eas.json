@@ -1,0 +1,38 @@
+{
+  "cli": {
+    "version": ">= 7.8.0"
+  },
+  "build": {
+    "ios": {
+      "simulator": false,
+      "buildConfiguration": "Release",
+      "image": "latest",
+      "resourceClass": "m-medium",
+      "cache": {
+        "key": "ios-v1-{{ checksum \"apps/mobile/ios/Podfile.lock\" }}"
+      }
+    },
+    "android": {
+      "buildType":     "apk",
+      "image":         "latest",
+      "resourceClass": "medium",
+      "gradleCommand": ":app:assembleRelease",
+      "cache": {
+        "key": "android-v1-{{ checksum \"apps/mobile/android/gradle/wrapper/gradle-wrapper.properties\" }}"
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleId":    "your-apple-id@example.com",
+        "ascAppId":   "YOUR_APP_STORE_APP_ID",
+        "appleTeamId":"YOUR_TEAM_ID"
+      },
+      "android": {
+        "serviceAccountKeyPath": "./google-service-account.json",
+        "track":                 "internal"
+      }
+    }
+  }
+}

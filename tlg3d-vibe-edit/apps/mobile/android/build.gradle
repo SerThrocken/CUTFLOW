@@ -1,0 +1,32 @@
+// ── Project-level build.gradle ────────────────────────────────
+
+buildscript {
+    ext {
+        buildToolsVersion = "34.0.0"
+        minSdkVersion     = 24
+        compileSdkVersion = 34
+        targetSdkVersion  = 34
+        ndkVersion        = "25.1.8937393"
+        kotlinVersion     = "1.9.0"
+    }
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("com.android.tools.build:gradle:8.1.0")
+        classpath("com.facebook.react:react-native-gradle-plugin")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
+        // Firebase / Google Services
+        classpath("com.google.gms:google-services:4.4.0")
+        classpath("com.google.firebase:firebase-crashlytics-gradle:2.9.9")
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        maven { url = uri("https://jitpack.io") }
+    }
+}

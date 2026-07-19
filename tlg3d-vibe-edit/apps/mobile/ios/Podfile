@@ -1,0 +1,92 @@
+# Podfile — TLG3D Vibe Edit iOS
+# Xcode reads this file to link all native dependencies
+# before building the final .ipa package.
+
+require_relative '../node_modules/react-native/scripts/react_native_pods'
+require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
+
+platform :ios, '15.1'
+prepare_react_native_project!
+
+# ── Flipper (debug only) ──────────────────────────────────────
+flipper_config = ENV['NO_FLIPPER'] == "1" ?
+  FlipperConfiguration.disabled :
+  FlipperConfiguration.enabled
+
+linkage = ENV['USE_FRAMEWORKS']
+if linkage != nil
+  Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
+  use_frameworks! :linkage => linkage.to_sym
+end
+
+target 'TLG3D' do
+  config = use_native_modules!
+
+  # ── React Native core ────────────────────────────────────────
+  use_react_native!(
+    :path => config[:reactNativePath],
+    :hermes_enabled => true,
+    :fabric_enabled => false,
+    :flipper_configuration => flipper_config,
+    :app_path => "#{Pod::Config.instance.installation_root}/.."
+  )
+
+  # ── Navigation ───────────────────────────────────────────────
+  pod 'RNScreens',               :path => '../node_modules/react-native-screens'
+  pod 'RNGestureHandler',        :path => '../node_modules/react-native-gesture-handler'
+  pod 'RNReanimated',            :path => '../node_modules/react-native-reanimated'
+  pod 'RNSafeAreaContext',       :path => '../node_modules/react-native-safe-area-context'
+
+  # ── Video & Camera ───────────────────────────────────────────
+  pod 'react-native-video',      :path => '../node_modules/react-native-video'
+  pod 'RNCameraKit',             :path => '../node_modules/react-native-camera-kit'
+  pod 'RNImageCropPicker',       :path => '../node_modules/react-native-image-crop-picker'
+
+  # ── File System ──────────────────────────────────────────────
+  pod 'RNFS',                    :path => '../node_modules/react-native-fs'
+  pod 'RNBlobUtil',              :path => '../node_modules/react-native-blob-util'
+  pod 'RNDocumentPicker',        :path => '../node_modules/react-native-document-picker'
+
+  # ── Networking / WebRTC ──────────────────────────────────────
+  pod 'react-native-webrtc',     :path => '../node_modules/react-native-webrtc'
+
+  # ── Notifications / Firebase ─────────────────────────────────
+  pod 'RNNotifee',               :path => '../node_modules/@notifee/react-native'
+  pod 'RNFirebase',              :path => '../node_modules/@react-native-firebase/app'
+  pod 'RNFirebaseMessaging',     :path => '../node_modules/@react-native-firebase/messaging'
+
+  # ── Sharing & Social ─────────────────────────────────────────
+  pod 'RNShare',                 :path => '../node_modules/react-native-share'
+
+  # ── Storage ──────────────────────────────────────────────────
+  pod 'MMKV',                    :podspec => '../node_modules/react-native-mmkv/react-native-mmkv.podspec'
+
+  # ── Vector Icons ─────────────────────────────────────────────
+  pod 'RNVectorIcons',           :path => '../node_modules/react-native-vector-icons'
+
+  # ── Fast Image ───────────────────────────────────────────────
+  pod 'RNFastImage',             :path => '../node_modules/react-native-fast-image'
+
+  # ── QR Code ──────────────────────────────────────────────────
+  pod 'RNSVG',                   :path => '../node_modules/react-native-svg'
+
+  # ── TLG3D Native Module ──────────────────────────────────────
+  # (Swift native bridge: iMessage, APNs, share sheet, local net)
+  pod 'TLG3DNative', :path => './TLG3D/Native'
+
+  post_install do |installer|
+    react_native_post_install(installer,
+      config[:reactNativePath],
+      :mac_catalyst_enabled => false
+    )
+
+    # Force minimum iOS deployment target
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.1'
+        # Required for react-native-video and WebRTC
+        config.build_settings['ENABLE_BITCODE'] = 'NO'
+      end
+    end
+  end
+end

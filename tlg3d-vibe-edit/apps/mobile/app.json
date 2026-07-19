@@ -1,0 +1,80 @@
+{
+  "name":        "CutFlow",
+  "displayName": "CutFlow",
+  "expo": {
+    "name":    "CutFlow",
+    "slug":    "cutflow",
+    "version": "0.1.0",
+    "orientation": "default",
+    "icon":    "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image":           "./assets/splash.png",
+      "resizeMode":      "contain",
+      "backgroundColor": "#0F0F0F"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet":   true,
+      "bundleIdentifier": "dev.tlg3d.cutflow",
+      "buildNumber":      "1",
+      "infoPlist": {
+        "NSCameraUsageDescription":          "CutFlow needs camera access to record videos for editing.",
+        "NSMicrophoneUsageDescription":      "CutFlow needs microphone access to record audio and voiceovers.",
+        "NSPhotoLibraryUsageDescription":    "CutFlow needs photo library access to import videos and images.",
+        "NSPhotoLibraryAddUsageDescription": "CutFlow needs to save finished video edits to your library.",
+        "NSLocalNetworkUsageDescription":    "CutFlow connects to your desktop over the local network for remote editing and file transfer.",
+        "NSFaceIDUsageDescription":          "CutFlow uses Face ID to protect your account and projects.",
+        "NSBonjourServices":                 ["_cutflow._tcp", "_cutflow._udp"],
+        "UIBackgroundModes":                 ["audio", "fetch", "remote-notification", "processing"]
+      },
+      "entitlements": {
+        "com.apple.developer.networking.multicast": true,
+        "com.apple.security.network.client":        true,
+        "com.apple.security.network.server":        true
+      }
+    },
+    "android": {
+      "package":     "dev.tlg3d.cutflow",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0F0F0F"
+      },
+      "permissions": [
+        "CAMERA",
+        "RECORD_AUDIO",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "READ_MEDIA_IMAGES",
+        "READ_MEDIA_VIDEO",
+        "READ_MEDIA_AUDIO",
+        "INTERNET",
+        "ACCESS_NETWORK_STATE",
+        "ACCESS_WIFI_STATE",
+        "CHANGE_WIFI_MULTICAST_STATE",
+        "FOREGROUND_SERVICE",
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE",
+        "USE_BIOMETRIC",
+        "USE_FINGERPRINT",
+        "SEND_SMS",
+        "RECEIVE_SMS"
+      ]
+    },
+    "plugins": [
+      "expo-camera",
+      "expo-media-library",
+      "expo-file-system",
+      "expo-av",
+      "expo-notifications",
+      ["expo-build-properties", {
+        "ios":     { "deploymentTarget": "15.1" },
+        "android": { "compileSdkVersion": 34, "targetSdkVersion": 34, "minSdkVersion": 24 }
+      }]
+    ],
+    "extra": {
+      "eas": { "projectId": "cutflow" }
+    }
+  }
+}

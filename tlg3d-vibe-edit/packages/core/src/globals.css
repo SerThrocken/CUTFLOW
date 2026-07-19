@@ -1,0 +1,203 @@
+// ===== GLOBAL STYLES & TAILWIND CONFIG =====
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* TLG3D Base Styles - Dark theme foundation */
+@layer base {
+  :root {
+    --color-primary: #4FD97D;
+    --color-accent: #D4A574;
+    --color-background: #0F0F0F;
+    --color-surface: #1A1A1A;
+    --color-text: #E0E0E0;
+    --color-text-secondary: #888888;
+    --color-border: #2A2A2A;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply bg-gray-900 text-gray-100 font-sans;
+  }
+
+  h1 {
+    @apply text-4xl font-bold text-gray-50;
+  }
+
+  h2 {
+    @apply text-3xl font-bold text-gray-100;
+  }
+
+  h3 {
+    @apply text-2xl font-semibold text-gray-100;
+  }
+
+  h4 {
+    @apply text-xl font-semibold text-gray-200;
+  }
+
+  h5,
+  h6 {
+    @apply text-lg font-semibold text-gray-200;
+  }
+
+  p {
+    @apply text-gray-300 leading-relaxed;
+  }
+
+  a {
+    @apply text-green-500 hover:text-green-400 transition-colors;
+  }
+
+  /* Selection */
+  ::selection {
+    @apply bg-green-600 text-gray-900;
+  }
+
+  ::-webkit-scrollbar {
+    @apply w-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-gray-900;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-700 rounded hover:bg-gray-600;
+  }
+}
+
+/* TLG3D Component Styles */
+@layer components {
+  /* Containers */
+  .container-tlg {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Cards and Sections */
+  .card-tlg {
+    @apply bg-gray-900 border border-gray-800 rounded-lg p-6 transition-all hover:border-gray-700;
+  }
+
+  .section-tlg {
+    @apply py-12 px-4;
+  }
+
+  /* Gradients */
+  .gradient-tlg-primary {
+    background: linear-gradient(135deg, #4FD97D, #2A6B47);
+  }
+
+  .gradient-tlg-accent {
+    background: linear-gradient(135deg, #D4A574, #9B7C4A);
+  }
+
+  /* Glows and Effects */
+  .glow-tlg-primary {
+    box-shadow: 0 0 20px rgba(79, 217, 125, 0.3);
+  }
+
+  .glow-tlg-accent {
+    box-shadow: 0 0 20px rgba(212, 165, 116, 0.3);
+  }
+
+  /* Text utilities */
+  .text-tlg-primary {
+    @apply text-green-400;
+  }
+
+  .text-tlg-accent {
+    @apply text-amber-400;
+  }
+
+  .text-tlg-secondary {
+    @apply text-gray-400;
+  }
+
+  /* Input focus states */
+  input:focus,
+  textarea:focus,
+  select:focus {
+    @apply border-green-600 ring-1 ring-green-600 ring-opacity-30;
+  }
+
+  /* Button base */
+  button {
+    @apply transition-colors duration-200;
+  }
+
+  button:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+
+  /* Animations */
+  @keyframes tlg-glow {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.8;
+    }
+  }
+
+  @keyframes tlg-pulse {
+    0%,
+    100% {
+      box-shadow: 0 0 10px rgba(79, 217, 125, 0.3);
+    }
+    50% {
+      box-shadow: 0 0 20px rgba(79, 217, 125, 0.6);
+    }
+  }
+
+  .animate-tlg-glow {
+    animation: tlg-glow 2s ease-in-out infinite;
+  }
+
+  .animate-tlg-pulse {
+    animation: tlg-pulse 2s ease-in-out infinite;
+  }
+}
+
+/* Utility Classes */
+@layer utilities {
+  .truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .truncate-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .glass {
+    @apply bg-black bg-opacity-20 backdrop-blur-md border border-white border-opacity-10;
+  }
+
+  .glass-dark {
+    @apply bg-gray-900 bg-opacity-40 backdrop-blur-md border border-gray-700 border-opacity-30;
+  }
+
+  .btn-group > button {
+    @apply border-r border-gray-700 last:border-r-0;
+  }
+}
+
+/* Focus Visible Override */
+:focus-visible {
+  @apply outline-none ring-2 ring-green-600 ring-offset-2 ring-offset-gray-900;
+}
+
+/* Dark scrollbar */
+* {
+  scrollbar-color: #4b5563 transparent;
+}
