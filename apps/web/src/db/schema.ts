@@ -68,3 +68,17 @@ export const verifications = pgTable("verifications", {
 		() => /* @__PURE__ */ new Date(),
 	),
 }).enableRLS();
+
+export const licenses = pgTable("licenses", {
+	id: text("id").primaryKey(), // The license key
+	email: text("email").notNull(),
+	tier: text("tier").default("free").notNull(), // 'free', 'pro', 'studio'
+	hardwareIds: text("hardware_ids"), // JSON string array of up to 3 device IDs
+	source: text("source").notNull(), // 'paypal', 'patreon', 'dev'
+	subscriptionId: text("subscription_id"),
+	createdAt: timestamp("created_at")
+		.$defaultFn(() => new Date())
+		.notNull(),
+	expiresAt: timestamp("expires_at"),
+	revoked: boolean("revoked").default(false).notNull(),
+}).enableRLS();

@@ -77,6 +77,89 @@ struct CutFlowApp {
     teleprompter_scrolling: bool,
     teleprompter_tempo: u32,
     teleprompter_voice_scroll: bool,
+    
+    // UI Theme & Editor State
+    theme_id: String,
+    advanced_mode: bool,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct Theme {
+    id: &'static str,
+    name: &'static str,
+    bg: gpui::Rgba,
+    surface: gpui::Rgba,
+    border: gpui::Rgba,
+    primary: gpui::Rgba,
+    accent: gpui::Rgba,
+    white: gpui::Rgba,
+    bright: gpui::Rgba,
+    muted: gpui::Rgba,
+    success: gpui::Rgba,
+    error: gpui::Rgba,
+}
+
+impl CutFlowApp {
+    fn get_current_theme(&self) -> Theme {
+        match self.theme_id.as_str() {
+            "midnight_ocean" => Theme {
+                id: "midnight_ocean",
+                name: "Midnight Ocean",
+                bg: rgb(0x0A192F),
+                surface: rgb(0x112240),
+                border: rgb(0x233554),
+                primary: rgb(0x64FFDA),
+                accent: rgb(0x8892B0),
+                white: rgb(0xCCD6F6),
+                bright: rgb(0xE6F1FF),
+                muted: rgb(0x8892B0),
+                success: rgb(0x10b981),
+                error: rgb(0xef4444),
+            },
+            "nordic_studio" => Theme {
+                id: "nordic_studio",
+                name: "Nordic Studio",
+                bg: rgb(0x2E3440),
+                surface: rgb(0x3B4252),
+                border: rgb(0x4C566A),
+                primary: rgb(0x81A1C1),
+                accent: rgb(0xA3BE8C),
+                white: rgb(0xD8DEE9),
+                bright: rgb(0xECEFF4),
+                muted: rgb(0x4C566A),
+                success: rgb(0xA3BE8C),
+                error: rgb(0xBF616A),
+            },
+            "graphite_minimal" => Theme {
+                id: "graphite_minimal",
+                name: "Graphite Minimal",
+                bg: rgb(0x000000),
+                surface: rgb(0x111111),
+                border: rgb(0x333333),
+                primary: rgb(0xFFFFFF),
+                accent: rgb(0xA1A1AA),
+                white: rgb(0xE0E0E0),
+                bright: rgb(0xFFFFFF),
+                muted: rgb(0x666666),
+                success: rgb(0x10b981),
+                error: rgb(0xef4444),
+            },
+            _ => Theme { // Default to TLG3D Industrial
+                id: "tlg3d_industrial",
+                name: "TLG3D Industrial",
+                bg: rgb(0x15171A),
+                surface: rgb(0x1E2125),
+                border: rgb(0x2D3136),
+                primary: rgb(0x2EC4B6), // Neon Swirl Green
+                accent: rgb(0xFF9F1C),  // Swirl Yellow
+                white: rgb(0xE0E0E0),
+                bright: rgb(0xFFFFFF),
+                muted: rgb(0x808080),
+                success: rgb(0x2EC4B6),
+                error: rgb(0xE71D36),
+            }
+        }
+    }
 }
 
 impl CutFlowApp {
@@ -152,6 +235,8 @@ impl CutFlowApp {
             teleprompter_scrolling: false,
             teleprompter_tempo: 130, // 130 WPM average speaking speed
             teleprompter_voice_scroll: false,
+            theme_id: "tlg3d_industrial".into(),
+            advanced_mode: false,
         };
 
         // Query Ollama status asynchronously
@@ -510,16 +595,18 @@ impl CutFlowApp {
 
 impl Render for CutFlowApp {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        let palette_bg = rgb(0x0a0a0a);
-        let palette_surface = rgb(0x131313);
-        let palette_border = rgb(0x1e1e1e);
-        let palette_primary = rgb(0x4fd97d);
-        let palette_accent = rgb(0xd4a574);
-        let palette_white = rgb(0xe0e0e0);
-        let palette_bright = rgb(0xffffff);
-        let palette_muted = rgb(0x808080);
-        let palette_success = rgb(0x10b981);
-        let palette_error = rgb(0xef4444);
+        let theme = self.get_current_theme();
+        
+        let palette_bg = theme.bg;
+        let palette_surface = theme.surface;
+        let palette_border = theme.border;
+        let palette_primary = theme.primary;
+        let palette_accent = theme.accent;
+        let palette_white = theme.white;
+        let palette_bright = theme.bright;
+        let palette_muted = theme.muted;
+        let palette_success = theme.success;
+        let palette_error = theme.error;
 
         if self.active_view == View::Onboarding {
             // ─── ONBOARDING SETUP WIZARD VIEW ───
@@ -1227,29 +1314,33 @@ impl CutFlowApp {
                             )
                     )
                     .child(
-                        // Timeline Area
-                        div()
-                            .flex_1()
-                            .bg(surface)
-                            .border_1()
-                            .border_color(border)
-                            .rounded_md()
-                            .p_4()
-                            .flex()
-                            .flex_col()
-                            .child(div().text_color(bright).text_xs().font_weight(gpui::FontWeight::BOLD).child("TIMELINE CHANNELS"))
-                            .child(
-                                div()
-                                    .flex_grow()
-                                    .flex()
-                                    .flex_col()
-                                    .gap_2()
-                                    .mt_4()
-                                    .child(self.timeline_track("🎥 Video Channel", "cam_roll_01.mp4 [0.0 - 18.5s]  |  b_roll_ocean.mp4 [18.5 - 30.5s]", primary, border))
-                                    .child(self.timeline_track("🎵 Music Channel", "summer_beat.mp3 [0.0 - 30.5s]", accent, border))
-                                    .child(self.timeline_track("🔊 Sound SFX Channel", "Empty track", muted, border))
-                                    .child(self.timeline_track("🎙️ Voiceover Channel", "voiceover_01.mp3 [2.0 - 12.0s]", rgb(0x3b82f6), border))
-                            )
+                        // Timeline Area (Advanced Mode Only)
+                        if self.advanced_mode {
+                            div()
+                                .flex_1()
+                                .bg(surface)
+                                .border_1()
+                                .border_color(border)
+                                .rounded_md()
+                                .p_4()
+                                .flex()
+                                .flex_col()
+                                .child(div().text_color(bright).text_xs().font_weight(gpui::FontWeight::BOLD).child("TIMELINE CHANNELS"))
+                                .child(
+                                    div()
+                                        .flex_grow()
+                                        .flex()
+                                        .flex_col()
+                                        .gap_2()
+                                        .mt_4()
+                                        .child(self.timeline_track("🎥 Video Channel", "cam_roll_01.mp4 [0.0 - 18.5s]  |  b_roll_ocean.mp4 [18.5 - 30.5s]", primary, border))
+                                        .child(self.timeline_track("🎵 Music Channel", "summer_beat.mp3 [0.0 - 30.5s]", accent, border))
+                                        .child(self.timeline_track("🔊 Sound SFX Channel", "Empty track", muted, border))
+                                        .child(self.timeline_track("🎙️ Voiceover Channel", "voiceover_01.mp3 [2.0 - 12.0s]", rgb(0x3b82f6), border))
+                                )
+                        } else {
+                            div() // Empty div for basic mode
+                        }
                     )
             )
             .child(
@@ -1271,7 +1362,37 @@ impl CutFlowApp {
                             .flex()
                             .flex_col()
                             .gap_3()
-                            .child(div().text_color(bright).text_sm().font_weight(gpui::FontWeight::BOLD).child("✨ VIBE EDIT CONSOLE"))
+                            .child(
+                                div()
+                                    .flex()
+                                    .items_center()
+                                    .justify_between()
+                                    .child(div().text_color(bright).text_sm().font_weight(gpui::FontWeight::BOLD).child("✨ VIBE EDIT CONSOLE"))
+                                    .child(
+                                        div()
+                                            .id("advanced-toggle")
+                                            .flex()
+                                            .items_center()
+                                            .gap_2()
+                                            .cursor_pointer()
+                                            .on_click(cx.listener(|this, _, _, cx| {
+                                                this.advanced_mode = !this.advanced_mode;
+                                                cx.notify();
+                                            }))
+                                            .child(div().text_color(if self.advanced_mode { muted } else { primary }).text_xs().child("BASIC"))
+                                            .child(
+                                                div()
+                                                    .w(px(32.0))
+                                                    .h(px(16.0))
+                                                    .rounded_full()
+                                                    .bg(if self.advanced_mode { accent } else { border })
+                                                    .flex()
+                                                    .items_center()
+                                                    .justify_start() // We would normally animate this left/right
+                                            )
+                                            .child(div().text_color(if self.advanced_mode { accent } else { muted }).text_xs().child("ADVANCED"))
+                                    )
+                            )
                             .child(
                                 // Input Box
                                 div()

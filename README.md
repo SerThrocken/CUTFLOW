@@ -186,6 +186,8 @@ CUTFLOW/
 
 | Document | Description |
 |---|---|
+| [`CHANGELOG.md`](CHANGELOG.md) | Release history and feature updates by SerThrocken |
+| [`docs/MASTER_SETUP_GUIDE.md`](docs/MASTER_SETUP_GUIDE.md) | **Must read!** Complete Cloud setup, Discord webhook, and PayPal/Patreon guide |
 | [`docs/FREE_AI_MODELS_GUIDE.md`](docs/FREE_AI_MODELS_GUIDE.md) | **Start here!** Free API providers so you can use CutFlow without spending a dime |
 | [`docs/AGENT_ARCHITECTURE.md`](docs/AGENT_ARCHITECTURE.md) | Director Agent & sub-agent system deep dive |
 | [`docs/PATREON_PAYPAL_SETUP.md`](docs/PATREON_PAYPAL_SETUP.md) | Payment integration walkthrough (for developers) |

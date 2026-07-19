@@ -1243,6 +1243,13 @@ pub async fn run_music_advisor(concept: &str) -> Result<String, String> {
         5. Volume ducking strategy (when to lower music)\n\
         6. Any music transitions (mood changes at specific timestamps)\n\n\
         Video concept: \"{}\"",
+        concept
+    );
+
+    // Call LLM (mocked for now since ollama routing is in main)
+    Ok(format!("Suggested music advice for: {}", concept))
+}
+
 /// 4. Emotion-based Color Grading
 pub async fn run_emotion_grade(project_path: &str, video_path: &str, emotion: &str) -> Result<String, String> {
     let preset = match emotion {
@@ -1363,4 +1370,20 @@ impl DirectorAgent {
             agent.last_checkin = Instant::now();
         }
     }
+}
+
+// ============================================================
+//  STUBS FOR MISSING AGENTS (added for compilation)
+// ============================================================
+
+pub async fn run_broll_fetcher(_project_path: &str, _prompt: &str) -> Result<String, String> {
+    Ok("Mocked B-Roll Fetcher".into())
+}
+
+pub async fn run_face_track_zoom(_project_path: &str, _video: &str) -> Result<String, String> {
+    Ok("Mocked Face Track Zoom".into())
+}
+
+pub async fn run_auto_subtitles(_project_path: &str, _video: &str) -> Result<String, String> {
+    Ok("Mocked Auto Subtitles".into())
 }

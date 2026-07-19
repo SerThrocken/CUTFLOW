@@ -28,8 +28,28 @@ export type Key = (typeof KEYS)[number];
 
 const KEY_SET: ReadonlySet<string> = new Set(KEYS);
 
+const MODIFIERS: ReadonlySet<string> = new Set([
+	"ctrl",
+	"alt",
+	"shift",
+	"ctrl+shift",
+	"alt+shift",
+	"ctrl+alt",
+	"ctrl+alt+shift"
+]);
+
 export function isKey(value: string): value is Key {
 	return KEY_SET.has(value);
+}
+
+export function isShortcutKey(value: string): value is ShortcutKey {
+	const parts = value.split("+");
+	if (parts.length === 1) {
+		return isKey(parts[0]);
+	}
+	const keyPart = parts[parts.length - 1];
+	const modifierPart = parts.slice(0, -1).join("+");
+	return MODIFIERS.has(modifierPart) && isKey(keyPart);
 }
 
 export type ModifierBasedShortcutKey = `${ModifierKeys}+${Key}`;
