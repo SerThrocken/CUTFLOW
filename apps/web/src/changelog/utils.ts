@@ -1,7 +1,18 @@
+// @ts-ignore
 import { allChangelogs } from "content-collections";
 
 export type Change = { type: string; text: string };
-export type Release = (typeof allChangelogs)[number];
+export type Release = {
+	version: string;
+	published?: boolean;
+	date?: string;
+	summary?: string;
+	changes: Change[];
+	content?: string;
+	title?: string;
+	description?: string;
+	isLatest?: boolean;
+};
 
 type ChangeSectionConfig = {
 	title: string;
@@ -69,14 +80,14 @@ function isPublishedRelease({ published }: Release) {
 	return published !== false;
 }
 
-export function getSortedReleases() {
-	return allChangelogs
+export function getSortedReleases(): Release[] {
+	return (allChangelogs as Release[])
 		.filter(isPublishedRelease)
 		.sort((a, b) =>
 			b.version.localeCompare(a.version, undefined, { numeric: true }),
 		);
 }
 
-export function getReleaseByVersion({ version }: { version: string }) {
+export function getReleaseByVersion({ version }: { version: string }): Release | undefined {
 	return getSortedReleases().find((release) => release.version === version);
 }
